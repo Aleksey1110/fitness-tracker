@@ -9,7 +9,7 @@
     <mat-header-cell *matHeaderCellDef mat-sort-header>
       Date
     </mat-header-cell>
-    <mat-cell *matCellDef="let element">{{ element.date | date }}</mat-cell>
+    <mat-cell *matCellDef="let element">{{ element.date.toDate() | date }}</mat-cell>
   </ng-container>
   <ng-container matColumnDef="name">
     <mat-header-cell *matHeaderCellDef mat-sort-header>
