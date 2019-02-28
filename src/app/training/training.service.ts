@@ -1,5 +1,5 @@
 import { Exercise } from './exercise.model';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { map, take } from 'rxjs/operators';
@@ -11,11 +11,7 @@ import * as Training from '../training/training.actions';
 
 @Injectable()
 export class TrainingService {
-    exerciseChange = new Subject<Exercise>();
-    exercisesChange = new Subject<Exercise[]>();
-    finishedExercisesChanged = new Subject<Exercise[]>();
-    private avaliableExercises: Exercise[] = [];
-    private runningExercise: Exercise;
+
     private fbSubs: Subscription[] = [];
 
 
@@ -26,7 +22,9 @@ export class TrainingService {
     ) { }
 
     fetchAvailableExercises() {
-        this.fbSubs.push(this.db
+        this.store.dispatch(new UI.StartLoading());
+        this.fbSubs.push(
+            this.db
             .collection('avaliableExercises')
             .snapshotChanges()
             .pipe(map(docArray => {
@@ -43,7 +41,6 @@ export class TrainingService {
             }, err => {
                 this.store.dispatch(new UI.StopLoading);
                 this.uiService.showSnackbar('Fetching exercises failed, please try again later', null, 3000);
-                this.exercisesChange.next(null);
             }));
     }
 
@@ -64,7 +61,7 @@ export class TrainingService {
             this.addDataToDb({
                 ...ex,
                 date: new Date(),
-                state: 'completed',
+                state: 'cancelled',
                 duration: ex.duration * (progress / 100),
                 calories: ex.calories * (progress / 100),
             });
@@ -73,7 +70,8 @@ export class TrainingService {
     }
 
     fetchCompletedOrCancelledExercises() {
-        this.fbSubs.push(this.db
+        this.fbSubs.push(
+            this.db
             .collection('finishedExercises')
             .valueChanges()
             .subscribe((ex: Exercise[]) => {

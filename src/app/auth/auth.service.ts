@@ -12,7 +12,8 @@ import * as Auth from '../auth/auth.actions';
 @Injectable()
 export class AuthService {
 
-    constructor(private router: Router,
+    constructor(
+        private router: Router,
         private afAuth: AngularFireAuth,
         private trainingService: TrainingService,
         private uiServise: UiService,
